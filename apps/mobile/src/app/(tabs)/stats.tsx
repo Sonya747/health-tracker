@@ -212,7 +212,7 @@ export default function StatsScreen() {
                   />
                   {stats.anxiety.topTriggers.length > 0 ? (
                     <Text style={[typography.secondary, { marginTop: spacing.sm }]}>
-                      常见诱因:{' '}
+                      常见诱因：
                       {stats.anxiety.topTriggers
                         .slice(0, 3)
                         .map((t) => `${t.tag}（${t.count} 次）`)

@@ -111,7 +111,7 @@ export default function TodayScreen() {
                 ? ` · 质量：${RATING_LABELS.sleepQuality[sleepPayload.quality - 1]}`
                 : ''}
             </Text>
-            {sleep.note ? <Text style={styles.noteText}>备注:{sleep.note}</Text> : null}
+            {sleep.note ? <Text style={styles.noteText}>备注：{sleep.note}</Text> : null}
           </View>
         ) : (
           <View>
