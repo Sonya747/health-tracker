@@ -1,0 +1,29 @@
+# dependencies
+node_modules/
+
+# expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# native build output
+apps/mobile/android/app/build/
+apps/mobile/android/build/
+apps/mobile/android/.gradle/
+apps/mobile/android/.kotlin/
+apps/mobile/android/local.properties
+apps/mobile/ios/build/
+apps/mobile/ios/Pods/
+
+# build artifacts
+*.apk
+*.aab
+*.ipa
+
+# misc
+.DS_Store
+*.log
+coverage/
+*.tsbuildinfo
+.turbo/

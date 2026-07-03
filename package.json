@@ -1,0 +1,11 @@
+{
+  "name": "health-tracker",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "test": "pnpm -r --filter @health-tracker/core test",
+    "typecheck": "pnpm -r typecheck",
+    "mobile": "pnpm --filter mobile start"
+  },
+  "packageManager": "pnpm@7.33.7"
+}
