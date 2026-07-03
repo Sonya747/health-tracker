@@ -117,15 +117,26 @@ export function computeDurationStats(records: RecordEntry[], range: DateRange): 
 export type EventStats = {
   totalCount: number;
   totalDurationMinutes: number;
+  /** 只按填写了时长的事件平均，无数据为 null */
+  avgDurationMinutes: number | null;
   avgIntensity: number | null;
   perDay: { date: string; count: number; durationMinutes: number }[];
-  /** 出现频率最高的诱因标签，按次数降序 */
+  /** 出现频率最高的标签（tagsKey 字段），按次数降序 */
   topTriggers: { tag: string; count: number }[];
 };
 
-export function computeEventStats(records: RecordEntry[], range: DateRange): EventStats {
+/**
+ * 事件类统计（焦虑发作、排便等）。
+ * tagsKey 指定 payload 里的标签字段：焦虑用 'triggers'，排便用 'stoolTags'。
+ */
+export function computeEventStats(
+  records: RecordEntry[],
+  range: DateRange,
+  tagsKey: string = 'triggers',
+): EventStats {
   const byDate = groupByDate(records);
   const triggerCounts = new Map<string, number>();
+  const durations: number[] = [];
   let intensitySum = 0;
   let intensityCount = 0;
 
@@ -133,14 +144,20 @@ export function computeEventStats(records: RecordEntry[], range: DateRange): Eve
     const recs = byDate.get(date) ?? [];
     let durationMinutes = 0;
     for (const r of recs) {
-      const p = r.payload as Partial<AnxietyPayload>;
-      durationMinutes += typeof p.durationMinutes === 'number' ? p.durationMinutes : 0;
+      const p = r.payload as Partial<AnxietyPayload> & Record<string, unknown>;
+      if (typeof p.durationMinutes === 'number') {
+        durationMinutes += p.durationMinutes;
+        durations.push(p.durationMinutes);
+      }
       if (typeof p.intensity === 'number') {
         intensitySum += p.intensity;
         intensityCount++;
       }
-      for (const tag of p.triggers ?? []) {
-        triggerCounts.set(tag, (triggerCounts.get(tag) ?? 0) + 1);
+      const tags = p[tagsKey];
+      if (Array.isArray(tags)) {
+        for (const tag of tags) {
+          if (typeof tag === 'string') triggerCounts.set(tag, (triggerCounts.get(tag) ?? 0) + 1);
+        }
       }
     }
     return { date, count: recs.length, durationMinutes };
@@ -149,6 +166,8 @@ export function computeEventStats(records: RecordEntry[], range: DateRange): Eve
   return {
     totalCount: perDay.reduce((s, d) => s + d.count, 0),
     totalDurationMinutes: perDay.reduce((s, d) => s + d.durationMinutes, 0),
+    avgDurationMinutes:
+      durations.length > 0 ? durations.reduce((s, v) => s + v, 0) / durations.length : null,
     avgIntensity: intensityCount > 0 ? intensitySum / intensityCount : null,
     perDay,
     topTriggers: [...triggerCounts.entries()]

@@ -86,6 +86,22 @@ export type MoodPayload = {
   rating?: number;
 };
 
+/**
+ * 排便单次记录 payload（event 类）。
+ * 每次排便一条记录，当日次数 = 当日记录条数；
+ * 手动补录可以只有默认时间，不填时长和状态。
+ */
+export type BowelPayload = {
+  /** HH:mm 发生时间 */
+  time?: string;
+  /** 本次时长（分钟），计时模式由系统记录 */
+  durationMinutes?: number;
+  /** 大便状态标签，允许自定义增删 */
+  stoolTags?: string[];
+  /** 计时模式自动生成的记录标记 */
+  byTimer?: boolean;
+};
+
 /** 焦虑发作 payload（event 类） */
 export type AnxietyPayload = {
   /** HH:mm 发生时间 */

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { validateAnxiety, validateCount, validateMood, validateSleep } from '../src/validation';
+import {
+  validateAnxiety,
+  validateBowelEvent,
+  validateCount,
+  validateMood,
+  validateSleep,
+} from '../src/validation';
 
 describe('validateCount', () => {
   it('接受非负整数', () => {
@@ -64,6 +70,18 @@ describe('validateMood', () => {
   it('评分范围 1-5', () => {
     expect(validateMood({ statusTags: [], rating: 0 }).ok).toBe(false);
     expect(validateMood({ statusTags: [], rating: 6 }).ok).toBe(false);
+  });
+});
+
+describe('validateBowelEvent', () => {
+  it('接受完整输入和空输入', () => {
+    expect(validateBowelEvent({ time: '08:30', durationMinutes: 10, stoolTags: ['顺畅'] }).ok).toBe(true);
+    expect(validateBowelEvent({}).ok).toBe(true); // 手动补空白记录
+  });
+  it('拒绝非法时间和时长', () => {
+    expect(validateBowelEvent({ time: '25:00' }).ok).toBe(false);
+    expect(validateBowelEvent({ durationMinutes: 0 }).ok).toBe(false);
+    expect(validateBowelEvent({ durationMinutes: 241 }).ok).toBe(false);
   });
 });
 

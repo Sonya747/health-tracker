@@ -135,7 +135,23 @@ describe('computeEventStats', () => {
     const s = computeEventStats([], WEEK);
     expect(s.totalCount).toBe(0);
     expect(s.avgIntensity).toBeNull();
+    expect(s.avgDurationMinutes).toBeNull();
     expect(s.topTriggers).toHaveLength(0);
+  });
+
+  it('支持自定义标签字段（排便 stoolTags）和平均时长', () => {
+    const records = [
+      rec({ recordDate: '2026-06-29', value: 1, payload: { time: '08:00', durationMinutes: 10, stoolTags: ['顺畅'] } }),
+      rec({ recordDate: '2026-06-29', value: 1, payload: { time: '20:00', durationMinutes: 20, stoolTags: ['偏硬', '费力'] } }),
+      // 手动补录的空白记录：无时长不参与平均
+      rec({ recordDate: '2026-06-30', value: 1, payload: {} }),
+    ];
+    const s = computeEventStats(records, WEEK, 'stoolTags');
+    expect(s.totalCount).toBe(3);
+    expect(s.avgDurationMinutes).toBe(15);
+    expect(s.totalDurationMinutes).toBe(30);
+    expect(s.topTriggers.map((t) => t.tag)).toContain('顺畅');
+    expect(s.topTriggers).toHaveLength(3);
   });
 });
 

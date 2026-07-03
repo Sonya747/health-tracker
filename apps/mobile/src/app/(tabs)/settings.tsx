@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
+import { BOWEL_REMINDER_OPTIONS } from '@health-tracker/ui-schema';
 import { Card, CardHeader } from '../../components/ui';
 import { exportCsv, exportJson } from '../../features/exportData';
-import { colors, spacing, typography } from '../../theme';
+import { useHealthStore } from '../../stores/useHealthStore';
+import { colors, radius, spacing, typography } from '../../theme';
 
 function Row({
   title,
@@ -33,6 +35,8 @@ function Row({
 export default function SettingsScreen() {
   const router = useRouter();
   const [exporting, setExporting] = useState(false);
+  const { bowelRecordMode, bowelReminderMinutes, bowelTimerStart, setBowelRecordMode, setBowelReminderMinutes } =
+    useHealthStore();
 
   const doExport = async (kind: 'json' | 'csv') => {
     if (exporting) return;
@@ -47,8 +51,62 @@ export default function SettingsScreen() {
     }
   };
 
+  const switchMode = (mode: 'timer' | 'manual') => {
+    if (mode === 'manual' && bowelTimerStart) {
+      Alert.alert('提示', '正在排便计时中，请先结束或放弃计时再切换模式。');
+      return;
+    }
+    setBowelRecordMode(mode);
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Card>
+        <CardHeader icon="🚽" title="记录偏好" />
+        <Text style={typography.secondary}>排便记录方式</Text>
+        <View style={styles.segment}>
+          {(
+            [
+              ['timer', '计时模式（默认）'],
+              ['manual', '快速模式'],
+            ] as ['timer' | 'manual', string][]
+          ).map(([m, label]) => (
+            <TouchableOpacity
+              key={m}
+              style={[styles.segmentItem, bowelRecordMode === m && styles.segmentItemActive]}
+              onPress={() => switchMode(m)}
+            >
+              <Text style={[styles.segmentText, bowelRecordMode === m && styles.segmentTextActive]}>
+                {label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <Text style={styles.modeHint}>
+          {bowelRecordMode === 'timer'
+            ? '排便开始/结束各点一下，系统自动记录时长'
+            : '点「＋」直接新增一条记录并编辑详细信息'}
+        </Text>
+        {bowelRecordMode === 'timer' ? (
+          <View>
+            <Text style={[typography.secondary, { marginTop: spacing.md }]}>计时超时提醒</Text>
+            <View style={styles.chipRow}>
+              {BOWEL_REMINDER_OPTIONS.map((m) => (
+                <TouchableOpacity
+                  key={m}
+                  style={[styles.chip, bowelReminderMinutes === m && styles.chipActive]}
+                  onPress={() => setBowelReminderMinutes(m)}
+                >
+                  <Text style={[styles.chipText, bowelReminderMinutes === m && styles.chipTextActive]}>
+                    {m} 分钟
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ) : null}
+      </Card>
+
       <Card>
         <CardHeader icon="📤" title="数据导出" />
         <Row
@@ -110,4 +168,27 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
   infoText: { fontSize: 13, color: colors.textSecondary, lineHeight: 20 },
+  segment: {
+    flexDirection: 'row',
+    backgroundColor: colors.background,
+    borderRadius: radius.md,
+    padding: 4,
+    marginTop: spacing.sm,
+  },
+  segmentItem: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: radius.sm },
+  segmentItemActive: { backgroundColor: colors.primary },
+  segmentText: { fontSize: 13, color: colors.textSecondary, fontWeight: '600' },
+  segmentTextActive: { color: '#fff' },
+  modeHint: { ...typography.secondary, color: colors.textTertiary, marginTop: spacing.sm },
+  chipRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+  chip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  chipActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
+  chipText: { fontSize: 13, color: colors.textSecondary },
+  chipTextActive: { color: colors.primary, fontWeight: '600' },
 });

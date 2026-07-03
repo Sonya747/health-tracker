@@ -94,6 +94,28 @@ export function validateMood(input: MoodInput): ValidationResult {
   return errors.length > 0 ? fail(errors) : pass;
 }
 
+export type BowelEventInput = {
+  time?: string;
+  durationMinutes?: number;
+  stoolTags?: string[];
+};
+
+/** 排便单次记录：时间可选但需合法，时长可选 1-240 分钟 */
+export function validateBowelEvent(input: BowelEventInput): ValidationResult {
+  const errors: string[] = [];
+  if (input.time !== undefined && input.time !== '' && !isValidTime(input.time)) {
+    errors.push('发生时间格式不正确');
+  }
+  if (input.durationMinutes !== undefined) {
+    if (!Number.isFinite(input.durationMinutes) || input.durationMinutes <= 0) {
+      errors.push('时长需要大于 0');
+    } else if (input.durationMinutes > 240) {
+      errors.push('时长不能超过 240 分钟');
+    }
+  }
+  return errors.length > 0 ? fail(errors) : pass;
+}
+
 export type AnxietyInput = {
   time: string;
   durationMinutes: number;

@@ -61,8 +61,11 @@ export default function StatsScreen() {
   const stats = useMemo(() => {
     if (mode === 'day') return null;
     const load = (catId: string) => repo.getRecordsByRange(range.start, range.end, catId);
+    const bowelRecords = load(BUILT_IN_CATEGORY_IDS.bowel);
     return {
-      bowel: computeCounterStats(load(BUILT_IN_CATEGORY_IDS.bowel), range),
+      bowel: computeCounterStats(bowelRecords, range),
+      // 排便事件的时长/状态标签统计（每条 value=1，计数柱状图仍走 counter 口径）
+      bowelDetail: computeEventStats(bowelRecords, range, 'stoolTags'),
       urination: computeCounterStats(load(BUILT_IN_CATEGORY_IDS.urination), range),
       sleep: computeDurationStats(load(BUILT_IN_CATEGORY_IDS.sleep), range),
       anxiety: computeEventStats(load(BUILT_IN_CATEGORY_IDS.anxiety), range),
@@ -135,6 +138,9 @@ export default function StatsScreen() {
               <Text style={styles.summaryLine}>
                 共 {stats.bowel.total} 次 · 日均 {stats.bowel.dailyAvg.toFixed(1)} 次 · 记录{' '}
                 {stats.bowel.recordedDays} 天
+                {stats.bowelDetail.avgDurationMinutes !== null
+                  ? ` · 平均时长 ${formatMinutes(Math.round(stats.bowelDetail.avgDurationMinutes))}`
+                  : ''}
               </Text>
               <BarChart
                 color="#B08968"
@@ -145,6 +151,15 @@ export default function StatsScreen() {
                 }))}
                 onPressBar={(date) => router.push(`/day/${date}`)}
               />
+              {stats.bowelDetail.topTriggers.length > 0 ? (
+                <Text style={[typography.secondary, { marginTop: spacing.sm }]}>
+                  常见状态：
+                  {stats.bowelDetail.topTriggers
+                    .slice(0, 3)
+                    .map((t) => `${t.tag}（${t.count} 次）`)
+                    .join('、')}
+                </Text>
+              ) : null}
             </Card>
 
             <Card>

@@ -1,11 +1,15 @@
-import { openDatabaseSync } from 'expo-sqlite';
+import { openDatabaseSync, type SQLiteDatabase } from 'expo-sqlite';
+import { migrateBowelCountersToEvents } from './migrations/bowelEvents';
 import { seedBuiltInCategories } from './seed';
 
 export const db = openDatabaseSync('health-tracker.db');
 
-const MIGRATIONS: string[] = [
+type Migration = { sql?: string; js?: (db: SQLiteDatabase) => void };
+
+const MIGRATIONS: Migration[] = [
   // v1: 初始表结构
-  `
+  {
+    sql: `
   CREATE TABLE IF NOT EXISTS categories (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -42,6 +46,17 @@ const MIGRATIONS: string[] = [
   CREATE INDEX IF NOT EXISTS idx_records_date ON records(record_date);
   CREATE INDEX IF NOT EXISTS idx_records_category_date ON records(category_id, record_date);
   `,
+  },
+  // v2: 应用设置 KV 表；排便由「按日计数」改为「按次事件」，旧计数记录转换为事件
+  {
+    sql: `
+  CREATE TABLE IF NOT EXISTS app_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
+  `,
+    js: migrateBowelCountersToEvents,
+  },
 ];
 
 let initialized = false;
@@ -53,7 +68,9 @@ export function initDatabase(): void {
   const currentVersion = row?.user_version ?? 0;
   for (let v = currentVersion; v < MIGRATIONS.length; v++) {
     db.withTransactionSync(() => {
-      db.execSync(MIGRATIONS[v]);
+      const m = MIGRATIONS[v];
+      if (m.sql) db.execSync(m.sql);
+      if (m.js) m.js(db);
       db.execSync(`PRAGMA user_version = ${v + 1}`);
     });
   }

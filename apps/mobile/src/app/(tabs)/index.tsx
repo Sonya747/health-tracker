@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import type { AnxietyPayload, MoodPayload, SleepPayload } from '@health-tracker/core';
 import { formatDateKey, formatMinutes } from '@health-tracker/core';
 import { RATING_LABELS } from '@health-tracker/ui-schema';
+import { BowelCard } from '../../components/BowelCard';
 import { CounterCard } from '../../components/CounterCard';
 import { DateSwitcher } from '../../components/pickers';
 import { Button, Card, CardHeader, EmptyState } from '../../components/ui';
@@ -17,8 +18,8 @@ export default function TodayScreen() {
     day,
     setSelectedDate,
     reloadDay,
-    adjustCounter,
-    setCounter,
+    adjustUrination,
+    setUrination,
     deleteSleep,
     deleteMood,
     deleteAnxietyEvent,
@@ -51,7 +52,6 @@ export default function TodayScreen() {
 
   if (!day) return null;
 
-  const bowelCount = typeof day.bowel?.value === 'number' ? day.bowel.value : 0;
   const urinationCount = typeof day.urination?.value === 'number' ? day.urination.value : 0;
   const sleep = day.sleep;
   const sleepPayload = sleep?.payload as Partial<SleepPayload> | undefined;
@@ -74,21 +74,14 @@ export default function TodayScreen() {
       <DateSwitcher date={selectedDate} onChange={setSelectedDate} />
       <Text style={styles.dateLabel}>{formatDateKey(selectedDate)}</Text>
 
-      <CounterCard
-        icon="💩"
-        title="排便"
-        count={bowelCount}
-        note={day.bowel?.note}
-        onAdjust={(d) => adjustCounter('bowel', d)}
-        onManualSave={(c, n) => setCounter('bowel', c, n)}
-      />
+      <BowelCard />
       <CounterCard
         icon="💧"
         title="排尿"
         count={urinationCount}
         note={day.urination?.note}
-        onAdjust={(d) => adjustCounter('urination', d)}
-        onManualSave={(c, n) => setCounter('urination', c, n)}
+        onAdjust={(d) => adjustUrination(d)}
+        onManualSave={(c, n) => setUrination(c, n)}
       />
 
       {/* 睡眠 */}

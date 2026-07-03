@@ -224,6 +224,24 @@ export function deleteDailyNote(date: string): void {
   db.runSync('DELETE FROM daily_notes WHERE record_date = ?', [date]);
 }
 
+// ---------- app settings (KV) ----------
+
+export function getSetting(key: string): string | null {
+  const row = db.getFirstSync<{ value: string }>('SELECT value FROM app_settings WHERE key = ?', [key]);
+  return row?.value ?? null;
+}
+
+export function setSetting(key: string, value: string): void {
+  db.runSync(
+    'INSERT INTO app_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
+    [key, value],
+  );
+}
+
+export function deleteSetting(key: string): void {
+  db.runSync('DELETE FROM app_settings WHERE key = ?', [key]);
+}
+
 // ---------- export ----------
 
 export function getAllRecords(): RecordEntry[] {

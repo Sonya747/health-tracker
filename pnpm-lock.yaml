@@ -15,6 +15,7 @@ importers:
       expo-file-system: ~57.0.0
       expo-font: ~57.0.0
       expo-linking: ~57.0.1
+      expo-notifications: ~57.0.2
       expo-router: ~57.0.2
       expo-sharing: ~57.0.1
       expo-splash-screen: ~57.0.1
@@ -38,6 +39,7 @@ importers:
       expo-file-system: 57.0.0_itx6s5enel456dfy4bsw74gg5i
       expo-font: 57.0.0_xj5ca3vf7xvne7u7urluwu22j4
       expo-linking: 57.0.1_xj5ca3vf7xvne7u7urluwu22j4
+      expo-notifications: 57.0.2_gwtvoyvouccjit4iywgtdomiue
       expo-router: 57.0.2_64vd3k63xn2q2czmfkvvbmmiae
       expo-sharing: 57.0.1_gwtvoyvouccjit4iywgtdomiue
       expo-splash-screen: 57.0.1_usggfnihfq6nrdbjvdimbf4n4m
@@ -2717,6 +2719,10 @@ packages:
       - supports-color
     dev: false
 
+  /badgin/1.2.3:
+    resolution: {integrity: sha512-NQGA7LcfCpSzIbGRbkgjgdWkjy7HI+Th5VLxTJfW5EeaAf3fnS+xWQaQOCYiny+q6QSvxqoSO04vCx+4u++EJw==}
+    dev: false
+
   /balanced-match/4.0.4:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
     engines: {node: 18 || 20 || >=22}
@@ -3211,6 +3217,14 @@ packages:
     engines: {node: '>=12.0.0'}
     dev: true
 
+  /expo-application/57.0.0_expo@57.0.1:
+    resolution: {integrity: sha512-vNrnYlqtRS5pFUm1tjut4dogZxW/uhmMOD5GeLQ8Z9Ji3KMYKLOy5dG0BlUsMrcSgyPJvJqP0TFopkEZ02ec6g==}
+    peerDependencies:
+      expo: '*'
+    dependencies:
+      expo: 57.0.1_wne42hcvmmu2r65dnnzf5jcaym
+    dev: false
+
   /expo-asset/57.0.2_gwtvoyvouccjit4iywgtdomiue:
     resolution: {integrity: sha512-58QjXdeklQmauYS7VlxFAk2O/KNsHqpfplHKLcgDQhg3ek26+3LL+lxWwha92JOBcHNUQoqPN47SoEsD2Yjj8A==}
     peerDependencies:
@@ -3338,6 +3352,26 @@ packages:
       react-native: '*'
     dependencies:
       react-native: 0.86.0_x35mfuizwhauffpceijtegq4sq
+    dev: false
+
+  /expo-notifications/57.0.2_gwtvoyvouccjit4iywgtdomiue:
+    resolution: {integrity: sha512-8acQPiwmIlmZ+MkieQkaFyJL7/2YpY6b9Rf/afvUA7b3Mxq2TgBYeq5mCv1LJOkuul/H1NdytZ/ExaYXKO/4Fw==}
+    peerDependencies:
+      expo: '*'
+      react: '*'
+      react-native: '*'
+    dependencies:
+      '@expo/image-utils': 0.11.0_typescript@6.0.3
+      abort-controller: 3.0.0
+      badgin: 1.2.3
+      expo: 57.0.1_wne42hcvmmu2r65dnnzf5jcaym
+      expo-application: 57.0.0_expo@57.0.1
+      expo-constants: 57.0.2_itx6s5enel456dfy4bsw74gg5i
+      react: 19.2.3
+      react-native: 0.86.0_x35mfuizwhauffpceijtegq4sq
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
     dev: false
 
   /expo-router/57.0.2_64vd3k63xn2q2czmfkvvbmmiae:

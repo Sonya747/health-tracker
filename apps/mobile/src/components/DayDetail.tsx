@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import type { AnxietyPayload, MoodPayload, SleepPayload } from '@health-tracker/core';
+import type { AnxietyPayload, BowelPayload, MoodPayload, SleepPayload } from '@health-tracker/core';
 import { formatMinutes } from '@health-tracker/core';
 import { BUILT_IN_CATEGORY_IDS, RATING_LABELS } from '@health-tracker/ui-schema';
 import * as repo from '../db/repo';
@@ -13,7 +13,7 @@ export function DayDetail({ date }: { date: string }) {
   const dailyNote = repo.getDailyNote(date);
   const byCat = (id: string) => records.filter((r) => r.categoryId === id);
 
-  const bowel = byCat(BUILT_IN_CATEGORY_IDS.bowel)[0];
+  const bowelEvents = byCat(BUILT_IN_CATEGORY_IDS.bowel);
   const urination = byCat(BUILT_IN_CATEGORY_IDS.urination)[0];
   const sleep = byCat(BUILT_IN_CATEGORY_IDS.sleep)[0];
   const mood = byCat(BUILT_IN_CATEGORY_IDS.mood)[0];
@@ -36,7 +36,7 @@ export function DayDetail({ date }: { date: string }) {
         <CardHeader icon="🔢" title="计数" />
         <View style={styles.counterRow}>
           <View style={styles.counterItem}>
-            <Text style={styles.counterValue}>{typeof bowel?.value === 'number' ? bowel.value : 0}</Text>
+            <Text style={styles.counterValue}>{bowelEvents.length}</Text>
             <Text style={typography.secondary}>排便（次）</Text>
           </View>
           <View style={styles.counterItem}>
@@ -46,9 +46,30 @@ export function DayDetail({ date }: { date: string }) {
             <Text style={typography.secondary}>排尿（次）</Text>
           </View>
         </View>
-        {bowel?.note ? <Text style={styles.noteText}>排便备注：{bowel.note}</Text> : null}
         {urination?.note ? <Text style={styles.noteText}>排尿备注：{urination.note}</Text> : null}
       </Card>
+
+      {bowelEvents.length > 0 ? (
+        <Card>
+          <CardHeader icon="💩" title={`排便明细（${bowelEvents.length} 次）`} />
+          {bowelEvents.map((e) => {
+            const p = e.payload as Partial<BowelPayload>;
+            return (
+              <View key={e.id} style={styles.eventRow}>
+                <Text style={typography.body}>
+                  {p.time ?? '时间未记录'}
+                  {typeof p.durationMinutes === 'number' ? ` · ${formatMinutes(p.durationMinutes)}` : ''}
+                  {p.byTimer ? ' · 计时' : ''}
+                </Text>
+                {(p.stoolTags?.length ?? 0) > 0 ? (
+                  <Text style={typography.secondary}>状态：{p.stoolTags!.join('、')}</Text>
+                ) : null}
+                {e.note ? <Text style={typography.secondary}>备注：{e.note}</Text> : null}
+              </View>
+            );
+          })}
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader icon="😴" title="睡眠" />

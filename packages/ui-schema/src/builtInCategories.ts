@@ -18,14 +18,24 @@ export const builtInCategories: RecordCategory[] = [
   {
     id: BUILT_IN_CATEGORY_IDS.bowel,
     name: '排便',
-    type: 'counter',
+    // v0.2 起改为事件类：每次排便一条记录（时间/时长/状态标签），当日次数 = 记录条数
+    type: 'event',
     icon: '💩',
     color: '#B08968',
     sortOrder: 1,
     isBuiltIn: true,
     isPinnedToToday: true,
     schema: [
-      { id: 'bowel-count', key: 'count', label: '次数', fieldType: 'number', required: true, defaultValue: 0, min: 0, max: 99, unit: '次' },
+      { id: 'bowel-time', key: 'time', label: '发生时间', fieldType: 'time', required: false },
+      { id: 'bowel-duration', key: 'durationMinutes', label: '时长', fieldType: 'duration', required: false, unit: '分钟', min: 1, max: 240 },
+      {
+        id: 'bowel-stool-tags',
+        key: 'stoolTags',
+        label: '大便状态',
+        fieldType: 'multiSelect',
+        required: false,
+        options: ['顺畅', '偏硬', '偏稀', '水样', '干硬颗粒', '不成形', '排不尽感', '费力', '颜色异常'],
+      },
       { id: 'bowel-note', key: 'note', label: '备注', fieldType: 'textarea', required: false },
     ],
     createdAt: SEED_TIME,
@@ -141,6 +151,17 @@ export const SLEEP_DURATION_PRESETS = [4 * 60, 5 * 60, 6 * 60, 7 * 60, 8 * 60, 9
 
 /** 夜间清醒时长快捷选项（分钟） */
 export const AWAKE_DURATION_PRESETS = [5, 10, 15, 30, 60, 90];
+
+/** 排便时长快捷选项（分钟） */
+export const BOWEL_DURATION_PRESETS = [3, 5, 8, 10, 15, 20];
+
+/** 排便记录方式：timer = 开始/结束计时（默认），manual = 点击增加后编辑 */
+export type BowelRecordMode = 'timer' | 'manual';
+export const DEFAULT_BOWEL_RECORD_MODE: BowelRecordMode = 'timer';
+
+/** 排便计时提醒阈值（分钟），默认 8，可在设置中调整 */
+export const DEFAULT_BOWEL_REMINDER_MINUTES = 8;
+export const BOWEL_REMINDER_OPTIONS = [5, 8, 10, 15];
 
 /** 焦虑持续时长快捷选项（分钟） */
 export const ANXIETY_DURATION_PRESETS = [5, 10, 15, 30, 60, 120];

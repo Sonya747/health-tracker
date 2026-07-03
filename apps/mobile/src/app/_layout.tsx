@@ -20,6 +20,7 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="record/bowel" options={{ title: '排便记录', presentation: 'modal' }} />
         <Stack.Screen name="record/sleep" options={{ title: '睡眠记录', presentation: 'modal' }} />
         <Stack.Screen name="record/mood" options={{ title: '个人状态', presentation: 'modal' }} />
         <Stack.Screen name="record/anxiety" options={{ title: '焦虑发作', presentation: 'modal' }} />

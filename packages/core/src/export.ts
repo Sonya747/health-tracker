@@ -69,13 +69,10 @@ export function exportRecordsToCsv(records: RecordEntry[], categories: RecordCat
   );
   for (const r of sorted) {
     const p = r.payload as Record<string, unknown>;
-    const tags = Array.isArray(p.triggers)
-      ? (p.triggers as string[]).join('|')
-      : Array.isArray(p.statusTags)
-        ? (p.statusTags as string[]).join('|')
-        : Array.isArray(p.sleepTags)
-          ? (p.sleepTags as string[]).join('|')
-          : '';
+    const tagList = [p.triggers, p.statusTags, p.sleepTags, p.stoolTags].find(Array.isArray) as
+      | string[]
+      | undefined;
+    const tags = tagList ? tagList.join('|') : '';
     rows.push(
       [
         r.recordDate,

@@ -26,10 +26,12 @@ export function seedBuiltInCategories(db: SQLiteDatabase): void {
           c.updatedAt,
         ],
       );
-      db.runSync(`UPDATE categories SET schema_json = ? WHERE id = ? AND is_built_in = 1`, [
-        JSON.stringify(c.schema),
-        c.id,
-      ]);
+      // 全字段刷新，保证升级后类别定义（如排便 counter -> event）与代码一致
+      db.runSync(
+        `UPDATE categories SET name = ?, type = ?, icon = ?, color = ?, sort_order = ?, schema_json = ?
+         WHERE id = ? AND is_built_in = 1`,
+        [c.name, c.type, c.icon, c.color, c.sortOrder, JSON.stringify(c.schema), c.id],
+      );
     }
   });
 }
