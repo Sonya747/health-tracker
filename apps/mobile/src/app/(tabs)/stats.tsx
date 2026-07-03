@@ -175,6 +175,25 @@ export default function StatsScreen() {
                       ? ` · 平均质量 ${stats.sleep.avgQuality.toFixed(1)}`
                       : ''}
                   </Text>
+                  {stats.sleep.avgAwakeCount !== null ||
+                  stats.sleep.avgAwakeMinutes !== null ||
+                  stats.sleep.avgDeepSleepPercent !== null ? (
+                    <Text style={styles.summaryLine}>
+                      {[
+                        stats.sleep.avgAwakeCount !== null
+                          ? `平均清醒 ${stats.sleep.avgAwakeCount.toFixed(1)} 次`
+                          : null,
+                        stats.sleep.avgAwakeMinutes !== null
+                          ? `平均清醒 ${formatMinutes(Math.round(stats.sleep.avgAwakeMinutes))}`
+                          : null,
+                        stats.sleep.avgDeepSleepPercent !== null
+                          ? `平均深睡 ${stats.sleep.avgDeepSleepPercent.toFixed(0)}%`
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </Text>
+                  ) : null}
                   <BarChart
                     color="#7C6FDE"
                     data={stats.sleep.perDay.map((d, i) => ({
@@ -185,6 +204,15 @@ export default function StatsScreen() {
                     }))}
                     onPressBar={(date) => router.push(`/day/${date}`)}
                   />
+                  {stats.sleep.topSleepTags.length > 0 ? (
+                    <Text style={[typography.secondary, { marginTop: spacing.sm }]}>
+                      常见标签：
+                      {stats.sleep.topSleepTags
+                        .slice(0, 3)
+                        .map((t) => `${t.tag}（${t.count} 次）`)
+                        .join('、')}
+                    </Text>
+                  ) : null}
                 </View>
               ) : (
                 <Text style={styles.emptyLine}>暂无睡眠记录</Text>

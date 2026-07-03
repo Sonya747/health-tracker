@@ -1,7 +1,10 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { builtInCategories } from '@health-tracker/ui-schema';
 
-/** 首次启动写入内置类别；已存在的 id 不覆盖（幂等） */
+/**
+ * 首次启动写入内置类别；已存在时刷新 schema_json，
+ * 保证 App 升级新增的表单字段（如睡眠的清醒次数/标签）能同步到旧数据库。幂等。
+ */
 export function seedBuiltInCategories(db: SQLiteDatabase): void {
   db.withTransactionSync(() => {
     for (const c of builtInCategories) {
@@ -23,6 +26,10 @@ export function seedBuiltInCategories(db: SQLiteDatabase): void {
           c.updatedAt,
         ],
       );
+      db.runSync(`UPDATE categories SET schema_json = ? WHERE id = ? AND is_built_in = 1`, [
+        JSON.stringify(c.schema),
+        c.id,
+      ]);
     }
   });
 }

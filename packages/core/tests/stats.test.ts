@@ -64,6 +64,47 @@ describe('computeDurationStats', () => {
     const records = [rec({ recordDate: '2026-06-29', payload: { durationMinutes: 400 } })];
     expect(computeDurationStats(records, WEEK).avgQuality).toBeNull();
   });
+
+  it('聚合清醒次数/时长、深睡比例和睡眠标签', () => {
+    const records = [
+      rec({
+        recordDate: '2026-06-29',
+        payload: {
+          durationMinutes: 420,
+          awakeCount: 2,
+          awakeMinutes: 30,
+          deepSleepPercent: 20,
+          sleepTags: ['早醒', '熬夜'],
+        },
+      }),
+      rec({
+        recordDate: '2026-06-30',
+        payload: {
+          durationMinutes: 480,
+          awakeCount: 0,
+          awakeMinutes: 10,
+          deepSleepPercent: 30,
+          sleepTags: ['早醒'],
+        },
+      }),
+      // 未填新字段的旧记录不影响均值
+      rec({ recordDate: '2026-07-01', payload: { durationMinutes: 400 } }),
+    ];
+    const s = computeDurationStats(records, WEEK);
+    expect(s.avgAwakeCount).toBe(1);
+    expect(s.avgAwakeMinutes).toBe(20);
+    expect(s.avgDeepSleepPercent).toBe(25);
+    expect(s.topSleepTags[0]).toEqual({ tag: '早醒', count: 2 });
+  });
+
+  it('无新字段数据时均值为 null、标签为空', () => {
+    const records = [rec({ recordDate: '2026-06-29', payload: { durationMinutes: 400 } })];
+    const s = computeDurationStats(records, WEEK);
+    expect(s.avgAwakeCount).toBeNull();
+    expect(s.avgAwakeMinutes).toBeNull();
+    expect(s.avgDeepSleepPercent).toBeNull();
+    expect(s.topSleepTags).toHaveLength(0);
+  });
 });
 
 describe('computeEventStats', () => {

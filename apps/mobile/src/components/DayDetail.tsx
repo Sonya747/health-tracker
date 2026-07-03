@@ -61,6 +61,22 @@ export function DayDetail({ date }: { date: string }) {
             {typeof sleepP.quality === 'number' ? (
               <Text style={typography.secondary}>质量：{RATING_LABELS.sleepQuality[sleepP.quality - 1]}</Text>
             ) : null}
+            {typeof sleepP.awakeCount === 'number' ||
+            typeof sleepP.awakeMinutes === 'number' ||
+            typeof sleepP.deepSleepPercent === 'number' ? (
+              <Text style={typography.secondary}>
+                {[
+                  typeof sleepP.awakeCount === 'number' ? `清醒 ${sleepP.awakeCount} 次` : null,
+                  typeof sleepP.awakeMinutes === 'number' ? `清醒共 ${formatMinutes(sleepP.awakeMinutes)}` : null,
+                  typeof sleepP.deepSleepPercent === 'number' ? `深睡 ${sleepP.deepSleepPercent}%` : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </Text>
+            ) : null}
+            {(sleepP.sleepTags?.length ?? 0) > 0 ? (
+              <Text style={typography.secondary}>标签：{sleepP.sleepTags!.join('、')}</Text>
+            ) : null}
             {sleep.note ? <Text style={styles.noteText}>备注：{sleep.note}</Text> : null}
           </View>
         ) : (

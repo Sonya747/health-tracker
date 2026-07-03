@@ -3,13 +3,22 @@ import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { SleepPayload } from '@health-tracker/core';
 import { durationFromTimes, formatMinutes, validateSleep } from '@health-tracker/core';
-import { RATING_LABELS, SLEEP_DURATION_PRESETS } from '@health-tracker/ui-schema';
+import {
+  AWAKE_DURATION_PRESETS,
+  BUILT_IN_CATEGORY_IDS,
+  builtInCategories,
+  RATING_LABELS,
+  SLEEP_DURATION_PRESETS,
+} from '@health-tracker/ui-schema';
 import { DurationPickerModal, TimePickerModal } from '../../components/pickers';
 import { Button, ErrorList, FieldLabel } from '../../components/ui';
-import { RatingSelector } from '../../components/selectors';
+import { RatingSelector, TagSelector } from '../../components/selectors';
 import { useAlignedDate } from '../../stores/useAlignedDate';
 import { useHealthStore } from '../../stores/useHealthStore';
 import { colors, radius, spacing, typography } from '../../theme';
+
+const sleepCategory = builtInCategories.find((c) => c.id === BUILT_IN_CATEGORY_IDS.sleep)!;
+const sleepTagOptions = sleepCategory.schema.find((f) => f.key === 'sleepTags')?.options ?? [];
 
 export default function SleepFormScreen() {
   const router = useRouter();
@@ -23,16 +32,37 @@ export default function SleepFormScreen() {
   const [endTime, setEndTime] = useState<string | undefined>(p.endTime);
   const [durationMinutes, setDurationMinutes] = useState<number | undefined>(p.durationMinutes);
   const [quality, setQuality] = useState<number | null>(typeof p.quality === 'number' ? p.quality : null);
+  const [awakeCount, setAwakeCount] = useState<number | undefined>(p.awakeCount);
+  const [awakeMinutes, setAwakeMinutes] = useState<number | undefined>(p.awakeMinutes);
+  const [deepSleepDraft, setDeepSleepDraft] = useState(
+    typeof p.deepSleepPercent === 'number' ? String(p.deepSleepPercent) : '',
+  );
+  const [sleepTags, setSleepTags] = useState<string[]>(p.sleepTags ?? []);
   const [note, setNote] = useState(existing?.note ?? '');
   const [errors, setErrors] = useState<string[]>([]);
-  const [picker, setPicker] = useState<'start' | 'end' | 'duration' | null>(null);
+  const [picker, setPicker] = useState<'start' | 'end' | 'duration' | 'awake' | null>(null);
 
   // 起止时间齐了自动算时长
   const effectiveDuration =
     startTime && endTime ? durationFromTimes(startTime, endTime) : durationMinutes;
 
   const save = () => {
-    const input = { startTime, endTime, durationMinutes: effectiveDuration, quality: quality ?? undefined };
+    const trimmedDeep = deepSleepDraft.trim();
+    if (trimmedDeep !== '' && !/^\d+(\.\d+)?$/.test(trimmedDeep)) {
+      setErrors(['深睡比例请输入 0-100 的数字']);
+      return;
+    }
+    const deepSleepPercent = trimmedDeep === '' ? undefined : Number(trimmedDeep);
+    const input = {
+      startTime,
+      endTime,
+      durationMinutes: effectiveDuration,
+      quality: quality ?? undefined,
+      awakeCount,
+      awakeMinutes,
+      deepSleepPercent,
+      sleepTags,
+    };
     const result = validateSleep(input);
     if (!result.ok) {
       setErrors(result.errors);
@@ -44,6 +74,10 @@ export default function SleepFormScreen() {
         endTime,
         durationMinutes: effectiveDuration!,
         quality: quality ?? undefined,
+        awakeCount,
+        awakeMinutes,
+        deepSleepPercent,
+        sleepTags,
       },
       note.trim(),
     );
@@ -94,6 +128,60 @@ export default function SleepFormScreen() {
       <FieldLabel label="睡眠质量" />
       <RatingSelector value={quality} onChange={setQuality} labels={RATING_LABELS.sleepQuality} />
 
+      <FieldLabel label="夜间清醒次数" />
+      <View style={styles.stepperRow}>
+        <TouchableOpacity
+          style={[styles.stepperBtn, (awakeCount ?? 0) <= 0 && styles.stepperBtnDisabled]}
+          onPress={() => setAwakeCount(Math.max(0, (awakeCount ?? 0) - 1))}
+          disabled={(awakeCount ?? 0) <= 0}
+        >
+          <Text style={styles.stepperBtnText}>−</Text>
+        </TouchableOpacity>
+        <Text style={styles.stepperValue}>{awakeCount === undefined ? '未记录' : `${awakeCount} 次`}</Text>
+        <TouchableOpacity
+          style={styles.stepperBtn}
+          onPress={() => setAwakeCount(Math.min(99, (awakeCount ?? 0) + 1))}
+        >
+          <Text style={styles.stepperBtnText}>＋</Text>
+        </TouchableOpacity>
+        {awakeCount !== undefined ? (
+          <TouchableOpacity onPress={() => setAwakeCount(undefined)}>
+            <Text style={styles.clearText}>清除</Text>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+
+      <FieldLabel label="夜间清醒时长" />
+      <View style={styles.row}>
+        <TouchableOpacity style={styles.timeBtn} onPress={() => setPicker('awake')}>
+          <Text style={awakeMinutes !== undefined ? styles.timeText : styles.timePlaceholder}>
+            {awakeMinutes !== undefined ? formatMinutes(awakeMinutes) : '选择时长'}
+          </Text>
+        </TouchableOpacity>
+        {awakeMinutes !== undefined ? (
+          <TouchableOpacity onPress={() => setAwakeMinutes(undefined)}>
+            <Text style={styles.clearText}>清除</Text>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+
+      <FieldLabel label="深睡比例（%）" />
+      <View style={styles.row}>
+        <TextInput
+          style={[styles.timeBtn, styles.percentInput]}
+          value={deepSleepDraft}
+          onChangeText={setDeepSleepDraft}
+          keyboardType="decimal-pad"
+          maxLength={5}
+          placeholder="0-100，可选"
+          placeholderTextColor={colors.textTertiary}
+        />
+        <Text style={styles.unitText}>%</Text>
+      </View>
+
+      <FieldLabel label="睡眠标签" />
+      <TagSelector options={sleepTagOptions} selected={sleepTags} onChange={setSleepTags} />
+
       <FieldLabel label="备注" />
       <TextInput
         style={styles.noteInput}
@@ -138,6 +226,17 @@ export default function SleepFormScreen() {
           setPicker(null);
         }}
       />
+      <DurationPickerModal
+        visible={picker === 'awake'}
+        title="夜间清醒时长"
+        initialMinutes={awakeMinutes}
+        presets={AWAKE_DURATION_PRESETS}
+        onClose={() => setPicker(null)}
+        onConfirm={(m) => {
+          setAwakeMinutes(m);
+          setPicker(null);
+        }}
+      />
     </ScrollView>
   );
 }
@@ -159,6 +258,20 @@ const styles = StyleSheet.create({
   timeText: { fontSize: 15, color: colors.text },
   timePlaceholder: { fontSize: 15, color: colors.textTertiary },
   clearText: { fontSize: 13, color: colors.textSecondary },
+  stepperRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  stepperBtn: {
+    width: 44,
+    height: 40,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperBtnDisabled: { backgroundColor: colors.background },
+  stepperBtnText: { fontSize: 20, color: colors.primary, fontWeight: '600' },
+  stepperValue: { fontSize: 15, color: colors.text, minWidth: 64, textAlign: 'center' },
+  percentInput: { fontSize: 15, color: colors.text, paddingVertical: 10 },
+  unitText: { fontSize: 15, color: colors.textSecondary },
   noteInput: {
     borderWidth: 1,
     borderColor: colors.border,

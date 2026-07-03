@@ -32,6 +32,26 @@ describe('validateSleep', () => {
     expect(validateSleep({ durationMinutes: 2000 }).ok).toBe(false);
     expect(validateSleep({ durationMinutes: 450, quality: 6 }).ok).toBe(false);
   });
+  it('接受清醒次数/时长、深睡比例和标签', () => {
+    expect(
+      validateSleep({
+        durationMinutes: 450,
+        awakeCount: 2,
+        awakeMinutes: 30,
+        deepSleepPercent: 25,
+        sleepTags: ['早醒', '再次入睡困难'],
+      }).ok,
+    ).toBe(true);
+  });
+  it('拒绝非法清醒次数/时长和深睡比例', () => {
+    expect(validateSleep({ durationMinutes: 450, awakeCount: -1 }).ok).toBe(false);
+    expect(validateSleep({ durationMinutes: 450, awakeCount: 1.5 }).ok).toBe(false);
+    expect(validateSleep({ durationMinutes: 450, awakeMinutes: -5 }).ok).toBe(false);
+    // 清醒时长超过睡眠总时长
+    expect(validateSleep({ durationMinutes: 60, awakeMinutes: 90 }).ok).toBe(false);
+    expect(validateSleep({ durationMinutes: 450, deepSleepPercent: 101 }).ok).toBe(false);
+    expect(validateSleep({ durationMinutes: 450, deepSleepPercent: -1 }).ok).toBe(false);
+  });
 });
 
 describe('validateMood', () => {

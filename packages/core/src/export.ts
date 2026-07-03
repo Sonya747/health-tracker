@@ -53,6 +53,9 @@ export function exportRecordsToCsv(records: RecordEntry[], categories: RecordCat
     'ended_at',
     'duration_minutes',
     'quality',
+    'awake_count',
+    'awake_minutes',
+    'deep_sleep_percent',
     'intensity',
     'time',
     'tags',
@@ -70,7 +73,9 @@ export function exportRecordsToCsv(records: RecordEntry[], categories: RecordCat
       ? (p.triggers as string[]).join('|')
       : Array.isArray(p.statusTags)
         ? (p.statusTags as string[]).join('|')
-        : '';
+        : Array.isArray(p.sleepTags)
+          ? (p.sleepTags as string[]).join('|')
+          : '';
     rows.push(
       [
         r.recordDate,
@@ -80,6 +85,9 @@ export function exportRecordsToCsv(records: RecordEntry[], categories: RecordCat
         r.endedAt ?? '',
         p.durationMinutes ?? '',
         p.quality ?? '',
+        p.awakeCount ?? '',
+        p.awakeMinutes ?? '',
+        p.deepSleepPercent ?? '',
         p.intensity ?? '',
         p.time ?? '',
         tags,

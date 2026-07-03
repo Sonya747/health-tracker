@@ -61,6 +61,17 @@ export const builtInCategories: RecordCategory[] = [
       { id: 'sleep-end', key: 'endTime', label: '结束时间', fieldType: 'time', required: false },
       { id: 'sleep-duration', key: 'durationMinutes', label: '时长', fieldType: 'duration', required: false, unit: '分钟', min: 1, max: 1440 },
       { id: 'sleep-quality', key: 'quality', label: '睡眠质量', fieldType: 'rating', required: false, min: 1, max: 5 },
+      { id: 'sleep-awake-count', key: 'awakeCount', label: '清醒次数', fieldType: 'number', required: false, unit: '次', min: 0, max: 99 },
+      { id: 'sleep-awake-minutes', key: 'awakeMinutes', label: '清醒时长', fieldType: 'duration', required: false, unit: '分钟', min: 0, max: 1440 },
+      { id: 'sleep-deep-percent', key: 'deepSleepPercent', label: '深睡比例', fieldType: 'number', required: false, unit: '%', min: 0, max: 100 },
+      {
+        id: 'sleep-tags',
+        key: 'sleepTags',
+        label: '睡眠标签',
+        fieldType: 'multiSelect',
+        required: false,
+        options: ['早醒', '熬夜', '再次入睡困难', '多梦', '夜间惊醒', '失眠', '夜尿'],
+      },
       { id: 'sleep-note', key: 'note', label: '备注', fieldType: 'textarea', required: false },
     ],
     createdAt: SEED_TIME,
@@ -127,6 +138,9 @@ export const RATING_LABELS: Record<string, string[]> = {
 
 /** 常用睡眠时长快捷选项（分钟） */
 export const SLEEP_DURATION_PRESETS = [4 * 60, 5 * 60, 6 * 60, 7 * 60, 8 * 60, 9 * 60];
+
+/** 夜间清醒时长快捷选项（分钟） */
+export const AWAKE_DURATION_PRESETS = [5, 10, 15, 30, 60, 90];
 
 /** 焦虑持续时长快捷选项（分钟） */
 export const ANXIETY_DURATION_PRESETS = [5, 10, 15, 30, 60, 120];

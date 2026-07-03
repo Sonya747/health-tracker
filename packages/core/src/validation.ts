@@ -22,10 +22,15 @@ export type SleepInput = {
   endTime?: string;
   durationMinutes?: number;
   quality?: number;
+  awakeCount?: number;
+  awakeMinutes?: number;
+  deepSleepPercent?: number;
+  sleepTags?: string[];
 };
 
 /**
  * 睡眠：开始+结束时间成对填写，或直接填时长；二者至少其一。
+ * 清醒次数/时长、深睡比例、标签均可选。
  */
 export function validateSleep(input: SleepInput): ValidationResult {
   const errors: string[] = [];
@@ -43,6 +48,29 @@ export function validateSleep(input: SleepInput): ValidationResult {
   }
   if (input.quality !== undefined && (input.quality < 1 || input.quality > 5)) {
     errors.push('睡眠质量需要在 1-5 之间');
+  }
+  if (input.awakeCount !== undefined) {
+    if (!Number.isInteger(input.awakeCount) || input.awakeCount < 0 || input.awakeCount > 99) {
+      errors.push('清醒次数需要是 0-99 的整数');
+    }
+  }
+  if (input.awakeMinutes !== undefined) {
+    if (!Number.isFinite(input.awakeMinutes) || input.awakeMinutes < 0) {
+      errors.push('清醒时长不能小于 0');
+    } else if (typeof input.durationMinutes === 'number' && input.awakeMinutes > input.durationMinutes) {
+      errors.push('清醒时长不能超过睡眠总时长');
+    } else if (input.awakeMinutes > 24 * 60) {
+      errors.push('清醒时长不能超过 24 小时');
+    }
+  }
+  if (input.deepSleepPercent !== undefined) {
+    if (
+      !Number.isFinite(input.deepSleepPercent) ||
+      input.deepSleepPercent < 0 ||
+      input.deepSleepPercent > 100
+    ) {
+      errors.push('深睡比例需要在 0-100 之间');
+    }
   }
   return errors.length > 0 ? fail(errors) : pass;
 }

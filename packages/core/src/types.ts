@@ -69,6 +69,14 @@ export type SleepPayload = {
   durationMinutes: number;
   /** 1-5 */
   quality?: number;
+  /** 夜间清醒次数 */
+  awakeCount?: number;
+  /** 夜间清醒总时长（分钟） */
+  awakeMinutes?: number;
+  /** 深睡比例 0-100（%） */
+  deepSleepPercent?: number;
+  /** 睡眠标签：早醒、熬夜、再次入睡困难等，允许自定义增删 */
+  sleepTags?: string[];
 };
 
 /** 个人状态 payload（rating 类） */

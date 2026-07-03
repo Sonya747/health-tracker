@@ -120,6 +120,32 @@ export default function TodayScreen() {
                 ? ` · 质量：${RATING_LABELS.sleepQuality[sleepPayload.quality - 1]}`
                 : ''}
             </Text>
+            {typeof sleepPayload.awakeCount === 'number' ||
+            typeof sleepPayload.awakeMinutes === 'number' ||
+            typeof sleepPayload.deepSleepPercent === 'number' ? (
+              <Text style={typography.secondary}>
+                {[
+                  typeof sleepPayload.awakeCount === 'number' ? `清醒 ${sleepPayload.awakeCount} 次` : null,
+                  typeof sleepPayload.awakeMinutes === 'number'
+                    ? `清醒共 ${formatMinutes(sleepPayload.awakeMinutes)}`
+                    : null,
+                  typeof sleepPayload.deepSleepPercent === 'number'
+                    ? `深睡 ${sleepPayload.deepSleepPercent}%`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </Text>
+            ) : null}
+            {(sleepPayload.sleepTags?.length ?? 0) > 0 ? (
+              <View style={styles.tagRow}>
+                {sleepPayload.sleepTags!.map((t) => (
+                  <View key={t} style={styles.tagChip}>
+                    <Text style={styles.tagChipText}>{t}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
             {sleep.note ? <Text style={styles.noteText}>备注：{sleep.note}</Text> : null}
           </View>
         ) : (

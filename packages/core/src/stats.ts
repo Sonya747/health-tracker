@@ -53,10 +53,23 @@ export type DurationStats = {
   /** 无记录的天 minutes 为 null */
   perDay: { date: string; minutes: number | null; quality: number | null }[];
   avgQuality: number | null;
+  /** 平均每晚清醒次数（只按填写了该字段的天平均），无数据为 null */
+  avgAwakeCount: number | null;
+  /** 平均每晚清醒时长（分钟），无数据为 null */
+  avgAwakeMinutes: number | null;
+  /** 平均深睡比例（%），无数据为 null */
+  avgDeepSleepPercent: number | null;
+  /** 睡眠标签出现次数，按次数降序 */
+  topSleepTags: { tag: string; count: number }[];
 };
 
 export function computeDurationStats(records: RecordEntry[], range: DateRange): DurationStats {
   const byDate = groupByDate(records);
+  const awakeCounts: number[] = [];
+  const awakeMinutesList: number[] = [];
+  const deepPercents: number[] = [];
+  const tagCounts = new Map<string, number>();
+
   const perDay = eachDateKey(range).map((date) => {
     const recs = byDate.get(date) ?? [];
     if (recs.length === 0) return { date, minutes: null, quality: null };
@@ -70,12 +83,19 @@ export function computeDurationStats(records: RecordEntry[], range: DateRange): 
         qualitySum += p.quality;
         qualityCount++;
       }
+      if (typeof p.awakeCount === 'number') awakeCounts.push(p.awakeCount);
+      if (typeof p.awakeMinutes === 'number') awakeMinutesList.push(p.awakeMinutes);
+      if (typeof p.deepSleepPercent === 'number') deepPercents.push(p.deepSleepPercent);
+      for (const tag of p.sleepTags ?? []) {
+        tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+      }
     }
     return { date, minutes, quality: qualityCount > 0 ? qualitySum / qualityCount : null };
   });
   const recorded = perDay.filter((d): d is { date: string; minutes: number; quality: number | null } => d.minutes !== null);
   const totalMinutes = recorded.reduce((s, d) => s + d.minutes, 0);
   const qualities = recorded.map((d) => d.quality).filter((q): q is number => q !== null);
+  const avg = (arr: number[]) => (arr.length > 0 ? arr.reduce((s, v) => s + v, 0) / arr.length : null);
   return {
     recordedDays: recorded.length,
     avgMinutes: recorded.length > 0 ? totalMinutes / recorded.length : 0,
@@ -83,6 +103,12 @@ export function computeDurationStats(records: RecordEntry[], range: DateRange): 
     minMinutes: recorded.length > 0 ? Math.min(...recorded.map((d) => d.minutes)) : 0,
     perDay,
     avgQuality: qualities.length > 0 ? qualities.reduce((s, q) => s + q, 0) / qualities.length : null,
+    avgAwakeCount: avg(awakeCounts),
+    avgAwakeMinutes: avg(awakeMinutesList),
+    avgDeepSleepPercent: avg(deepPercents),
+    topSleepTags: [...tagCounts.entries()]
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count),
   };
 }
 
