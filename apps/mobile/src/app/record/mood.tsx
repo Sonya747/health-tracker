@@ -6,6 +6,7 @@ import { validateMood } from '@health-tracker/core';
 import { BUILT_IN_CATEGORY_IDS, builtInCategories, RATING_LABELS } from '@health-tracker/ui-schema';
 import { Button, ErrorList, FieldLabel } from '../../components/ui';
 import { RatingSelector, TagSelector } from '../../components/selectors';
+import { useAlignedDate } from '../../stores/useAlignedDate';
 import { useHealthStore } from '../../stores/useHealthStore';
 import { colors, radius, spacing, typography } from '../../theme';
 
@@ -15,6 +16,7 @@ const tagOptions = moodCategory.schema.find((f) => f.key === 'statusTags')?.opti
 export default function MoodFormScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ date?: string }>();
+  const recordDate = useAlignedDate(params.date);
   const { day, saveMood } = useHealthStore();
   const existing = day?.mood;
   const p = (existing?.payload ?? {}) as Partial<MoodPayload>;
@@ -36,7 +38,7 @@ export default function MoodFormScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      <Text style={typography.secondary}>记录日期：{params.date ?? day?.date}</Text>
+      <Text style={typography.secondary}>记录日期：{recordDate}</Text>
 
       <FieldLabel label="状态标签" />
       <TagSelector options={tagOptions} selected={tags} onChange={setTags} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, AppState, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { AnxietyPayload, MoodPayload, SleepPayload } from '@health-tracker/core';
 import { formatDateKey, formatMinutes } from '@health-tracker/core';
@@ -23,6 +23,7 @@ export default function TodayScreen() {
     deleteMood,
     deleteAnxietyEvent,
     saveDailyNote,
+    handleDayRollover,
   } = useHealthStore();
 
   const [noteDraft, setNoteDraft] = useState('');
@@ -33,6 +34,14 @@ export default function TodayScreen() {
     if (!day) reloadDay();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // App 从后台回到前台时检测跨天（例如过夜后第二天早上打开）
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') handleDayRollover();
+    });
+    return () => sub.remove();
+  }, [handleDayRollover]);
 
   // 切换日期后同步备注草稿
   useEffect(() => {

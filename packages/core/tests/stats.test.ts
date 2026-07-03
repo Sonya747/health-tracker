@@ -109,4 +109,22 @@ describe('computeRatingStats', () => {
     expect(s.avgRating).toBe(3);
     expect(s.perDay[1].rating).toBeNull();
   });
+
+  it('只记标签未打分的天也计入记录天数，但不参与均分', () => {
+    const records = [
+      rec({ recordDate: '2026-06-29', value: 4 }),
+      rec({ recordDate: '2026-06-30', payload: { statusTags: ['疲惫'] } }), // 未打分
+    ];
+    const s = computeRatingStats(records, WEEK);
+    expect(s.recordedDays).toBe(2);
+    expect(s.avgRating).toBe(4);
+    expect(s.perDay[1]).toEqual({ date: '2026-06-30', rating: null, hasRecord: true });
+  });
+
+  it('全部未打分时 avgRating 为 null 但 recordedDays 正确', () => {
+    const records = [rec({ recordDate: '2026-06-29', payload: { statusTags: ['平静'] } })];
+    const s = computeRatingStats(records, WEEK);
+    expect(s.recordedDays).toBe(1);
+    expect(s.avgRating).toBeNull();
+  });
 });

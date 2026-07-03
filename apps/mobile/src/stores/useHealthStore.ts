@@ -39,7 +39,11 @@ type HealthState = {
   day: DayData | null;
   /** 每次写库后自增，统计页据此刷新 */
   dataVersion: number;
+  /** store 最近一次认定的「今天」，用于跨天检测 */
+  lastKnownToday: string;
   setSelectedDate: (date: string) => void;
+  /** App 回前台/页面聚焦时调用：跨天且用户正停在旧的今天，则自动跟到新的今天 */
+  handleDayRollover: () => void;
   reloadDay: () => void;
   adjustCounter: (kind: CounterKind, delta: number) => void;
   setCounter: (kind: CounterKind, count: number, note?: string) => boolean;
@@ -64,9 +68,21 @@ export const useHealthStore = create<HealthState>((set, get) => {
     selectedDate: todayKey(),
     day: null,
     dataVersion: 0,
+    lastKnownToday: todayKey(),
 
     setSelectedDate: (date) => {
       set({ selectedDate: date, day: loadDayData(date) });
+    },
+
+    handleDayRollover: () => {
+      const t = todayKey();
+      const { lastKnownToday, selectedDate } = get();
+      if (t === lastKnownToday) return;
+      const wasFollowingToday = selectedDate === lastKnownToday;
+      set({ lastKnownToday: t });
+      if (wasFollowingToday) {
+        set({ selectedDate: t, day: loadDayData(t) });
+      }
     },
 
     reloadDay: () => refresh(),

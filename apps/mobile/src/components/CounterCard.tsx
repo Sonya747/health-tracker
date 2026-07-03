@@ -33,6 +33,10 @@ export function CounterCard({
   };
 
   const save = () => {
+    if (draftCount.trim() === '') {
+      setErrors(['请输入次数（清零请点「清零」按钮）']);
+      return;
+    }
     const n = Number(draftCount);
     const result = validateCount(n);
     if (!result.ok) {

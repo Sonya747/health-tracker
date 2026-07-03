@@ -7,6 +7,7 @@ import { ANXIETY_DURATION_PRESETS, BUILT_IN_CATEGORY_IDS, builtInCategories, RAT
 import { DurationPickerModal, TimePickerModal } from '../../components/pickers';
 import { Button, ErrorList, FieldLabel } from '../../components/ui';
 import { RatingSelector, TagSelector } from '../../components/selectors';
+import { useAlignedDate } from '../../stores/useAlignedDate';
 import { useHealthStore } from '../../stores/useHealthStore';
 import { colors, radius, spacing, typography } from '../../theme';
 
@@ -21,6 +22,7 @@ function nowTime(): string {
 export default function AnxietyFormScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ date?: string; id?: string }>();
+  const recordDate = useAlignedDate(params.date);
   const { day, addAnxietyEvent, updateAnxietyEvent, deleteAnxietyEvent } = useHealthStore();
 
   const existing = params.id ? (day?.anxietyEvents.find((e) => e.id === params.id) ?? null) : null;
@@ -67,7 +69,7 @@ export default function AnxietyFormScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <Text style={typography.secondary}>
-        记录日期：{params.date ?? day?.date}
+        记录日期：{recordDate}
         {existing ? '（编辑已有记录）' : ''}
       </Text>
 

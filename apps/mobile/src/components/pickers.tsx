@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
   addDays,
@@ -130,6 +130,10 @@ export function CalendarModal({
   onClose: () => void;
 }) {
   const [anchor, setAnchor] = useState(initial);
+  // Modal 常驻不卸载：每次打开都回到当前选中日期所在的月份
+  useEffect(() => {
+    if (visible) setAnchor(initial);
+  }, [visible, initial]);
   const range = monthRangeOf(anchor);
   const first = parseDateKey(range.start);
   const year = first.getFullYear();

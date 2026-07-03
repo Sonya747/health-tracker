@@ -134,9 +134,11 @@ export function computeEventStats(records: RecordEntry[], range: DateRange): Eve
 // ---------- 评分类（个人状态） ----------
 
 export type RatingStats = {
+  /** 有记录的天数（包括只记标签/备注未打分的天） */
   recordedDays: number;
+  /** 仅按打了分的天平均；没有任何评分时为 null */
   avgRating: number | null;
-  perDay: { date: string; rating: number | null }[];
+  perDay: { date: string; rating: number | null; hasRecord: boolean }[];
 };
 
 export function computeRatingStats(records: RecordEntry[], range: DateRange): RatingStats {
@@ -146,15 +148,17 @@ export function computeRatingStats(records: RecordEntry[], range: DateRange): Ra
     const ratings = recs
       .map((r) => (typeof r.value === 'number' ? r.value : null))
       .filter((v): v is number => v !== null);
-    return { date, rating: ratings.length > 0 ? ratings.reduce((s, v) => s + v, 0) / ratings.length : null };
+    return {
+      date,
+      rating: ratings.length > 0 ? ratings.reduce((s, v) => s + v, 0) / ratings.length : null,
+      hasRecord: recs.length > 0,
+    };
   });
-  const recorded = perDay.filter((d) => d.rating !== null);
+  const rated = perDay.filter((d) => d.rating !== null);
   return {
-    recordedDays: recorded.length,
+    recordedDays: perDay.filter((d) => d.hasRecord).length,
     avgRating:
-      recorded.length > 0
-        ? recorded.reduce((s, d) => s + (d.rating ?? 0), 0) / recorded.length
-        : null,
+      rated.length > 0 ? rated.reduce((s, d) => s + (d.rating ?? 0), 0) / rated.length : null,
     perDay,
   };
 }
