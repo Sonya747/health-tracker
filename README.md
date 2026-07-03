@@ -3,6 +3,7 @@
 本地优先的个人健康记录 Android App。用于低负担记录每日排便、排尿、睡眠、个人状态、焦虑发作与备注，并按日 / 周 / 月回看规律。**所有数据只保存在手机本地**：不联网、无账号、无云同步、无广告和第三方统计 SDK。
 
 - 当前版本：0.1.0（Android APK，架构已为 iOS / 小程序 / 飞书 H5 预留扩展空间）
+- **用户使用说明书（PDF，非技术向）**：[docs/健康记录App使用说明书.pdf](docs/健康记录App使用说明书.pdf)
 - 验收报告与手动测试步骤：[docs/acceptance-report.md](docs/acceptance-report.md)
 - 小程序端接入预留说明：[docs/miniapp-integration.md](docs/miniapp-integration.md)
 
