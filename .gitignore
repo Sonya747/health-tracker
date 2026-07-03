@@ -27,3 +27,4 @@ apps/mobile/ios/Pods/
 coverage/
 *.tsbuildinfo
 .turbo/
+dist/

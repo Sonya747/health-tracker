@@ -47,7 +47,7 @@
 
 | 检查项 | 结果 |
 | --- | --- |
-| `packages/core` 单元测试（vitest，日期/统计/导出/校验 33 例） | ✅ 33 passed |
+| `packages/core` 单元测试（vitest，日期/统计/导出/校验 35 例） | ✅ 35 passed |
 | TypeScript 严格模式类型检查（core / ui-schema / mobile） | ✅ 无错误 |
 | Metro 生产 bundle（`expo export --platform android`） | ✅ 成功（2.9MB hbc） |
 | Android release APK（Gradle 本地构建） | 见第 4 节 |
@@ -73,7 +73,22 @@ export ANDROID_HOME=$HOME/Library/Android/sdk
 
 ### 构建结果
 
-（待填写）
+✅ 构建成功（首次完整构建 20m51s，571 个 Gradle 任务；增量重建 40s）。
+
+- APK 路径（推荐取用）：`/Users/admin/projects/Tally/dist/health-tracker-0.1.0.apk`（98MB）
+- Gradle 原始产物：`apps/mobile/android/app/build/outputs/apk/release/app-release.apk`
+- 校验：包名 `com.healthtracker.mvp`，versionName 0.1.0，应用名「健康记录」，targetSdk 36 / compileSdk 36，apksigner 签名校验通过（debug 证书）。
+- 权限说明：manifest 中的 INTERNET 权限是 React Native 模板默认携带（供开发期 Metro 调试用），App 业务代码没有任何网络请求，飞行模式下全部功能可用。
+
+## 4.5 代码复查与修复
+
+构建期间由独立复查发现并已修复 5 个问题（commit `bb50bd7`）：
+
+1. 日历弹窗常驻不卸载，重新打开时停留在旧月份 → 打开时重置到当前选中日期所在月。
+2. 个人状态「只记标签未打分」的天数在周/月统计中被算作无记录 → `recordedDays` 按有记录天数统计，均分只按打分的天算（补 2 个单测）。
+3. App 过夜后回前台，`selectedDate` 停留在昨天，计数会写错日期 → AppState 监听跨天自动跟进（用户主动选择的历史日期不受影响）。
+4. 计数手动编辑时空输入会被静默存成 0 → 空输入报校验错误，清零需点「清零」按钮。
+5. 通过 deep link 打开记录表单时，URL 的 date 参数与实际写入日期可能不一致 → 表单挂载时对齐 store 日期。
 
 ## 5. 手动验收步骤
 
@@ -101,5 +116,5 @@ export ANDROID_HOME=$HOME/Library/Android/sdk
 - 时间/时长/日历选择器为自研轻量组件（避免额外原生依赖），非系统原生滚轮样式。
 - 图表为轻量自绘柱状图（开发计划允许「列表 + 简单柱状图」），月视图 31 根柱子在窄屏上较密，可点击柱子看详情。
 - 表单校验用 `packages/core` 的纯函数实现（未引入 React Hook Form + Zod，减少依赖；校验规则位置与计划一致，在 core 层，跨端可复用）。
-- 跨天仍显示启动时的「今天」，重新打开 App 后刷新（MVP 简化）。
+- APK 体积 98MB：Expo/RN 通用 release 包含四种 ABI 的原生库；后续可按 ABI 拆分或开启 minify 减小体积。
 - 后续路线：自定义类别 → 自定义表单项 → App 锁/加密 → Taro 小程序端（见 `docs/miniapp-integration.md`）。
