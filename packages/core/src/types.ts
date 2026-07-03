@@ -74,8 +74,8 @@ export type SleepPayload = {
 /** 个人状态 payload（rating 类） */
 export type MoodPayload = {
   statusTags: string[];
-  /** 1-5 */
-  rating: number;
+  /** 1-5，可以只记标签/备注不打分 */
+  rating?: number;
 };
 
 /** 焦虑发作 payload（event 类） */
