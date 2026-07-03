@@ -6,6 +6,8 @@
 - 验收报告与手动测试步骤：[docs/acceptance-report.md](docs/acceptance-report.md)
 - 小程序端接入预留说明：[docs/miniapp-integration.md](docs/miniapp-integration.md)
 
+> 下方界面截图均为占位图（`docs/screenshots/`），将在真机验收后替换为实际截图。
+
 ---
 
 ## 产品功能
@@ -13,6 +15,8 @@
 ### 1. 今日页 —— 快速记录
 
 打开 App 默认显示今天。顶部日期栏支持：前一天 / 后一天切换、点击打开月历跳任意日期、一键回到今天；App 过夜后回到前台会自动跟进到新的一天。
+
+<p align="center"><img src="docs/screenshots/today-overview.svg" width="260" alt="今日页整体"/></p>
 
 #### 1.1 排便（按次记录）
 
@@ -32,6 +36,11 @@
 - **大便状态标签**：预设 顺畅 / 偏硬 / 偏稀 / 水样 / 干硬颗粒 / 不成形 / 排不尽感 / 费力 / 颜色异常，点击选中或取消，支持自定义添加。
 - 当日记录列表逐条可编辑、可删除（均有确认）。
 
+<table><tr>
+<td align="center"><img src="docs/screenshots/bowel-timer.svg" width="220" alt="排便计时模式"/><br/><sub>计时模式</sub></td>
+<td align="center"><img src="docs/screenshots/bowel-manual.svg" width="220" alt="排便快速模式"/><br/><sub>快速模式</sub></td>
+</tr></table>
+
 #### 1.2 排尿（计数）
 
 「＋」「−」秒记（最低 0，为 0 时减号禁用），点数字可手动输入次数（0-99 校验）、清零、写备注。
@@ -45,13 +54,19 @@
 - **睡眠标签**：预设 早醒 / 熬夜 / 再次入睡困难 / 多梦 / 夜间惊醒 / 失眠 / 夜尿，支持自定义增删。
 - 备注；每天一条，可编辑、可删除（有确认）。
 
+<p align="center"><img src="docs/screenshots/sleep-form.svg" width="260" alt="睡眠记录表单"/></p>
+
 #### 1.4 个人状态
 
 状态标签多选（精力充沛 / 平静 / 疲惫 / 低落 / 烦躁 / 紧张 / 头痛 / 胃部不适 + 自定义）、1-5 评分、文字备注；三者至少填一项即可保存。每天一条，可编辑、可删除（有确认）。
 
+<p align="center"><img src="docs/screenshots/mood-form.svg" width="260" alt="个人状态记录"/></p>
+
 #### 1.5 焦虑发作
 
 一天可记多条。每条包含：发生时间、持续时长（快捷选项 5 分钟 - 2 小时）、强度 1-5（轻微 → 强烈）、诱因标签（工作压力 / 人际关系 / 健康担忧 / 经济压力 / 睡眠不足 / 咖啡因 / 不明原因 + 自定义）、备注。列表逐条可编辑、可删除（有确认）。
+
+<p align="center"><img src="docs/screenshots/anxiety-list.svg" width="260" alt="焦虑发作列表"/></p>
 
 #### 1.6 今日备注
 
@@ -60,6 +75,12 @@
 ### 2. 统计页 —— 日 / 周 / 月回看
 
 三个视图一键切换，「‹ ›」翻区间，点标题可用月历跳转；没有记录的区间显示明确的空状态。
+
+<table><tr>
+<td align="center"><img src="docs/screenshots/stats-day.svg" width="200" alt="统计日视图"/><br/><sub>日视图</sub></td>
+<td align="center"><img src="docs/screenshots/stats-week.svg" width="200" alt="统计周视图"/><br/><sub>周视图</sub></td>
+<td align="center"><img src="docs/screenshots/stats-month.svg" width="200" alt="统计月视图"/><br/><sub>月视图</sub></td>
+</tr></table>
 
 - **日视图**：当天全部记录明细（排便逐条、睡眠、状态、焦虑列表、备注）。
 - **周视图**（周一至周日）：
@@ -71,6 +92,8 @@
 - 所有柱状图都支持点击某天跳转当日详情页。
 
 ### 3. 设置页
+
+<p align="center"><img src="docs/screenshots/settings.svg" width="260" alt="设置页"/></p>
 
 - **记录偏好**：排便记录方式切换（计时 / 快速），计时超时提醒阈值（5 / 8 / 10 / 15 分钟）。
 - **数据导出**（用户主动触发，经系统分享面板保存到任意位置）：
